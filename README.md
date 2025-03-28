@@ -5,20 +5,9 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## Getting Started
+## About
 
-Here is a quick way to compile the example given in this repository.
-
-### Dependencies
-
-micro-ROS precompiled library is compiled using `arm-none-eabi-gcc` [9.3.1](https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2), a compatible version is expected when building the micro-ROS project.
-You can specify a compiler path with the following command:
-
-```bash
-# Configure environment
-echo "export PICO_TOOLCHAIN_PATH=..." >> ~/.bashrc
-source ~/.bashrc
-```
+Forked from [micro_ros_raspberry_pi_pico_sdk](https://github.com/micro-ROS/micro_ros_raspberrypi_pico_sdk). This repository uses the same file structure as the example SDK code but modifies the main file for use on the Krysallis Hand. This guide assumes that this repository was pulled as a submodule of the [glove_ROS](https://github.com/JustinChang04/glove_ROS) repository.
 
 ### 1. Install Pico SDK
 First, make sure the Pico SDK is properly installed and configured:
@@ -38,7 +27,7 @@ source ~/.bashrc
 Once the Pico SDK is ready, compile the example:
 
 ```bash
-cd micro_ros_raspberrypi_pico_sdk
+cd $HOME/glove_ROS/RPI_Master
 mkdir build
 cd build
 cmake ..
@@ -52,39 +41,9 @@ cp pico_micro_ros_example.uf2 /media/$USER/RPI-RP2
 
 ### 3. Start Micro-ROS Agent
 Micro-ROS follows the client-server architecture, so you need to start the Micro-ROS Agent.
-You can do so using the [micro-ros-agent Docker](https://hub.docker.com/r/microros/micro-ros-agent):
 ```bash
-docker run -it --rm -v /dev:/dev --privileged --net=host microros/micro-ros-agent:humble serial --dev /dev/ttyACM0 -b 115200
+micro-ros-agent serial --dev /dev/ttyACM0 -b 115200
 ```
-
-## What files are relevant?
-- `pico_uart_transport.c`: Contains the board specific implementation of the serial transport (no change needed).
-- `CMakeLists.txt`: CMake file.
-- `pico_micro_ros_example.c`: The actual ROS 2 publisher.
-
-## How to build the precompiled library
-
-Micro-ROS is precompiled for Raspberry Pi Pico in [`libmicroros`](libmicroros).
-If you want to compile it by yourself:
-
-```bash
-docker pull microros/micro_ros_static_library_builder:humble
-docker run -it --rm -v $(pwd):/project microros/micro_ros_static_library_builder:humble
-```
-
-Note that folders added to `microros_static_library/library_generation/extra_packages` and entries added to `microros_static_library/library_generation/extra_packages/extra_packages.repos` will be taken into account by this build system.
-## How to use Pico SDK?
-
-Here is a Raspberry Pi Pico C/C++ SDK documentation:
-https://datasheets.raspberrypi.org/pico/raspberry-pi-pico-c-sdk.pdf
-## Purpose of the Project
-
-This software is not ready for production use. It has neither been developed nor
-tested for a specific use case. However, the license conditions of the
-applicable Open Source licenses allow you to adapt the software to your needs.
-Before using it in a safety relevant setting, make sure that the software
-fulfills your requirements and adjust it according to any applicable safety
-standards, e.g., ISO 26262.
 
 ## License
 
