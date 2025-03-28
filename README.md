@@ -36,7 +36,7 @@ make
 
 To flash, hold the boot button, plug the USB and run:
 ```
-cp pico_micro_ros_example.uf2 /media/$USER/RPI-RP2
+cp main.uf2 /media/$USER/RPI-RP2
 ```
 
 ### 3. Start Micro-ROS Agent
