@@ -23,11 +23,10 @@ const uint LED_PIN = 25;
 #define I2C_SCL 9
 
 // I2C Addresses
-#define THUMB_ADDR 0
-#define INDEX_ADDR 1
-#define MIDDLE_ADDR 2
-#define RING_ADDR 3
-#define PINKY_ADDR 4
+#define THUMB_ADDR 1
+#define MCP_ADDR 2
+#define PIP_ADDR 3
+#define DIP_ADDR 4
 
 // Limits
 const float CMC_THUMB = 1.0 / 1.8545;
@@ -53,19 +52,34 @@ const float DIP_PINKY = 1.0 / 1.2577;
 // Joint data in radians
 float data[18] = {0.0f};
 
+// Normalizes array values between 0 and 1
+void normalize(float* arr, int size) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] > 1.0f) {
+            arr[i] = 1.0f;
+        }
+        else if (arr[i] < 0.0f) {
+            arr[i] = 0.0f;
+        }
+    }
+}
+
 // Writes joint angle data to I2C
 void writeData(float jointData[18]) {
     float thumbArr[3] = {jointData[0] * CMC_THUMB, jointData[1] * MCP_THUMB, jointData[2] * IP_THUMB};
-    float indexArr[3] = {jointData[4] * MCP_INDEX, jointData[5] * PIP_INDEX, jointData[6] * DIP_INDEX};
-    float middleArr[3] = {jointData[7] * MCP_MIDDLE, jointData[8] * PIP_MIDDLE, jointData[9] * DIP_MIDDLE};
-    float ringArr[3] = {jointData[11] * MCP_RING, jointData[12] * PIP_RING, jointData[13] * DIP_RING};
-    float pinkyArr[3] = {jointData[15] * MCP_PINKY, jointData[16] * PIP_PINKY, jointData[17] * DIP_PINKY};
+    float MCPArr[4] = {jointData[4] * MCP_INDEX, jointData[7] * MCP_MIDDLE, jointData[11] * MCP_RING, jointData[15] * MCP_PINKY};
+    float PIPArr[4] = {jointData[5] * PIP_INDEX, jointData[8] * PIP_MIDDLE, jointData[12] * PIP_RING, jointData[16] * PIP_PINKY};
+    float DIPArr[4] = {jointData[6] * PIP_INDEX, jointData[9] * DIP_MIDDLE, jointData[13] * DIP_RING, jointData[17] * DIP_PINKY};
+
+    normalize(thumbArr, 3);
+    normalize(MCPArr, 4);
+    normalize(PIPArr, 4);
+    normalize(DIPArr, 4);
 
     i2c_write_blocking(I2C_PORT, THUMB_ADDR , (uint8_t*) thumbArr , 12U, false);
-    i2c_write_blocking(I2C_PORT, INDEX_ADDR , (uint8_t*) indexArr , 12U, false);
-    i2c_write_blocking(I2C_PORT, MIDDLE_ADDR, (uint8_t*) middleArr, 12U, false);
-    i2c_write_blocking(I2C_PORT, RING_ADDR  , (uint8_t*) ringArr  , 12U, false);
-    i2c_write_blocking(I2C_PORT, PINKY_ADDR , (uint8_t*) pinkyArr , 12U, false);
+    i2c_write_blocking(I2C_PORT, MCP_ADDR , (uint8_t*) MCPArr , 16U, false);
+    i2c_write_blocking(I2C_PORT, PIP_ADDR , (uint8_t*) PIPArr , 16U, false);
+    i2c_write_blocking(I2C_PORT, DIP_ADDR , (uint8_t*) DIPArr , 16U, false);
 }
 
 // Subscriber callback
@@ -132,6 +146,8 @@ int main()
     RCCHECK(rclc_executor_add_subscription(
         &executor, &subscriber, &msg,
         &message_callback, ON_NEW_DATA));
+
+    gpio_put(LED_PIN, true);
 
     rclc_executor_spin(&executor);
     
