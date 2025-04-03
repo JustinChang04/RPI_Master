@@ -22,7 +22,7 @@ echo "export PICO_SDK_PATH=$HOME/pico-sdk" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### 2. Compile Example
+### 2. Compilation
 
 Once the Pico SDK is ready, compile the example:
 
@@ -34,13 +34,19 @@ cmake ..
 make
 ```
 
+Once the build directory is created, upon making changes to main.c, you only need to run:
+```
+cd $HOME/glove_ROS/RPI_Master/build
+make
+```
+
 To flash, hold the boot button, plug the USB and run:
 ```
 cp main.uf2 /media/$USER/RPI-RP2
 ```
 
 ### 3. Start Micro-ROS Agent
-Micro-ROS follows the client-server architecture, so you need to start the Micro-ROS Agent.
+Micro-ROS follows the client-server architecture, so you need to start the Micro-ROS Agent [(installation instructions)](https://snapcraft.io/micro-ros-agent).
 ```bash
 micro-ros-agent serial --dev /dev/ttyACM0 -b 115200
 ```
