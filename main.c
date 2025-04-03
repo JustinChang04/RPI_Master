@@ -27,6 +27,7 @@ const uint LED_PIN = 25;
 #define MCP_ADDR 2
 #define PIP_ADDR 3
 #define DIP_ADDR 4
+#define ABDUCTION_ADDR 5
 
 // Limits
 const float CMC_THUMB = 1.0 / 1.8545;
@@ -49,6 +50,9 @@ const float MCP_PINKY = 1.0 / 1.7269;
 const float PIP_PINKY = 1.0 / 1.2573;
 const float DIP_PINKY = 1.0 / 1.2577;
 
+const float CMC_INDEX_RING = 1.0 / (0.4666 * 3.0);
+const float CMC_PINKY = 1.0 / (0.6872 * 3.0);
+
 // Joint data in radians
 float data[18] = {0.0f};
 
@@ -70,16 +74,19 @@ void writeData(float jointData[18]) {
     float MCPArr[4] = {jointData[4] * MCP_INDEX, jointData[7] * MCP_MIDDLE, jointData[11] * MCP_RING, jointData[15] * MCP_PINKY};
     float PIPArr[4] = {jointData[5] * PIP_INDEX, jointData[8] * PIP_MIDDLE, jointData[12] * PIP_RING, jointData[16] * PIP_PINKY};
     float DIPArr[4] = {jointData[6] * PIP_INDEX, jointData[9] * DIP_MIDDLE, jointData[13] * DIP_RING, jointData[17] * DIP_PINKY};
+    float abduction = (jointData[3] + jointData[10]) * CMC_INDEX_RING + jointData[14] * CMC_PINKY; 
 
     normalize(thumbArr, 3);
     normalize(MCPArr, 4);
     normalize(PIPArr, 4);
     normalize(DIPArr, 4);
+    normalize(&abduction, 1);
 
     i2c_write_blocking(I2C_PORT, THUMB_ADDR , (uint8_t*) thumbArr , 12U, false);
     i2c_write_blocking(I2C_PORT, MCP_ADDR , (uint8_t*) MCPArr , 16U, false);
     i2c_write_blocking(I2C_PORT, PIP_ADDR , (uint8_t*) PIPArr , 16U, false);
     i2c_write_blocking(I2C_PORT, DIP_ADDR , (uint8_t*) DIPArr , 16U, false);
+    i2c_write_blocking(I2C_PORT, ABDUCTION_ADDR , (uint8_t*) &abduction , 4U, false);
 }
 
 // Subscriber callback
