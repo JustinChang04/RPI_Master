@@ -29,58 +29,17 @@ const uint LED_PIN = 25;
 #define DIP_ADDR 4
 #define ABDUCTION_ADDR 5
 
-// Limits
-const float CMC_THUMB = 1.0 / 1.8545;
-const float MCP_THUMB = 1.0 / 0.9203;
-const float IP_THUMB = 1.0 / 0.7858;
-
-const float MCP_INDEX = 1.0 / 1.8002;
-const float PIP_INDEX = 1.0 / 1.3104;
-const float DIP_INDEX = 1.0 / 1.1885;
-
-const float MCP_MIDDLE = 1.0 / 1.7791;
-const float PIP_MIDDLE = 1.0 / 1.2823;
-const float DIP_MIDDLE = 1.0 / 1.275;
-
-const float MCP_RING = 1.0 / 1.7553;
-const float PIP_RING = 1.0 / 1.273;
-const float DIP_RING = 1.0 / 1.2842;
-
-const float MCP_PINKY = 1.0 / 1.7269;
-const float PIP_PINKY = 1.0 / 1.2573;
-const float DIP_PINKY = 1.0 / 1.2577;
-
-const float CMC_INDEX_RING = 1.0 / (0.4666 * 3.0);
-const float CMC_PINKY = 1.0 / (0.6872 * 3.0);
-
-// Joint data in radians
 float data[18] = {0.0f};
 
-// Normalizes array values between 0 and 1
-void normalize(float* arr, int size) {
-    for (int i = 0; i < size; i++) {
-        if (arr[i] > 1.0f) {
-            arr[i] = 1.0f;
-        }
-        else if (arr[i] < 0.0f) {
-            arr[i] = 0.0f;
-        }
-    }
-}
+const float one_third = 1.0/3.0; // For multiplication optimization
 
 // Writes joint angle data to I2C
 void writeData(float jointData[18]) {
-    float thumbArr[3] = {jointData[0] * CMC_THUMB, jointData[1] * MCP_THUMB, jointData[2] * IP_THUMB};
-    float MCPArr[4] = {jointData[4] * MCP_INDEX, jointData[7] * MCP_MIDDLE, jointData[11] * MCP_RING, jointData[15] * MCP_PINKY};
-    float PIPArr[4] = {jointData[5] * PIP_INDEX, jointData[8] * PIP_MIDDLE, jointData[12] * PIP_RING, jointData[16] * PIP_PINKY};
-    float DIPArr[4] = {jointData[6] * PIP_INDEX, jointData[9] * DIP_MIDDLE, jointData[13] * DIP_RING, jointData[17] * DIP_PINKY};
-    float abduction = (jointData[3] + jointData[10]) * CMC_INDEX_RING + jointData[14] * CMC_PINKY; 
-
-    normalize(thumbArr, 3);
-    normalize(MCPArr, 4);
-    normalize(PIPArr, 4);
-    normalize(DIPArr, 4);
-    normalize(&abduction, 1);
+    float thumbArr[3] = {jointData[0], jointData[1], jointData[2]};
+    float MCPArr[4] = {jointData[4], jointData[7], jointData[11], jointData[15]};
+    float PIPArr[4] = {jointData[5], jointData[8], jointData[12], jointData[16]};
+    float DIPArr[4] = {jointData[6], jointData[9], jointData[13], jointData[17]};
+    float abduction = (jointData[3] + jointData[10]+ jointData[14]) * one_third;
 
     i2c_write_blocking(I2C_PORT, THUMB_ADDR , (uint8_t*) thumbArr , 12U, false);
     i2c_write_blocking(I2C_PORT, MCP_ADDR , (uint8_t*) MCPArr , 16U, false);
