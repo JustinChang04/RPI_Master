@@ -7,7 +7,13 @@
 
 ## About
 
-Forked from [micro_ros_raspberry_pi_pico_sdk](https://github.com/micro-ROS/micro_ros_raspberrypi_pico_sdk). This repository uses the same file structure as the example SDK code but modifies the main file for use on the Krysallis Hand. This guide assumes that this repository was pulled as a submodule of the [glove_ROS](https://github.com/JustinChang04/glove_ROS) repository.
+Forked from [micro_ros_raspberry_pi_pico_sdk](https://github.com/micro-ROS/micro_ros_raspberrypi_pico_sdk). Requires installation of [ROS 2 Humble](https://docs.ros.org/en/humble/index.html) on Ubuntu 22.04. This repository uses the same file structure as the example SDK code but modifies the main file for use on the Krysallis Hand. This guide assumes that this repository was pulled as a submodule of the [glove_ROS](https://github.com/JustinChang04/glove_ROS) repository.
+
+## How the Code Works
+
+The Raspberry Pi Pico uses [micro-ROS](https://micro.ros.org/) to listen for a ROS 2 message containing joint angles, each represented as a percentage of the maximum angle, coming from the computer. It then separates these values into arrays for MCP, PIP, DIP, thumb, and abduction and sends these values over I2C to the Arduinos. The Raspberry Pi runs at 3.3V, and the Arduinos run at 5V, so there is an [Adafruit BSS138](https://www.adafruit.com/product/757) level shifter between the Arduino and Raspberry Pi Pico I2C lines, although any appropriate level shifter can suffice.
+
+# Instructions
 
 ### 1. Install Pico SDK
 First, make sure the Pico SDK is properly installed and configured:
